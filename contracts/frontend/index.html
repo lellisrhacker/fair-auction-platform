@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Fair Auction</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.10.0/dist/web3.min.js"></script>
+    <style>
+        body {
+            background-color: #111;
+            color: #eee;
+            font-family: sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+
+        input,
+        button {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🪙 Fair Auction Platform</h1>
+    <p>A blockchain-based auction with fair participation.</p>
+
+    <p><strong>Highest Bid:</strong> <span id="highestBid">Loading...</span> ETH</p>
+    <p><strong>Highest Bidder:</strong> <span id="highestBidder">Loading...</span></p>
+
+    <input type="number" id="bidAmount" placeholder="Enter Bid in ETH" />
+    <button onclick="placeBid()">Place Bid</button>
+
+    <script>
+        const contractAddress = "0xd9145CCE52D386f254917e481eB44e9943F39138";
+        const contractABI = [
+            {
+                "inputs": [],
+                "name": "endAuction",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "placeBid",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                "name": "bids",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getHighestBid",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "getHighestBidder",
+                "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "highestBid",
+                "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "highestBidder",
+                "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "isAuctionActive",
+                "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "owner",
+                "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        let web3;
+        let contract;
+        let account;
+
+        async function loadWeb3() {
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const accounts = await web3.eth.getAccounts();
+                account = accounts[0];
+                contract = new web3.eth.Contract(contractABI, contractAddress);
+                loadAuctionData();
+            } else {
+                alert("Please install MetaMask to use this dApp!");
+            }
+        }
+
+        async function loadAuctionData() {
+            const bid = await contract.methods.getHighestBid().call();
+            const bidder = await contract.methods.getHighestBidder().call();
+            document.getElementById("highestBid").innerText = web3.utils.fromWei(bid, "ether");
+            document.getElementById("highestBidder").innerText = bidder;
+        }
+
+        async function placeBid() {
+            const amount = document.getElementById("bidAmount").value;
+            if (!amount || isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid bid amount.");
+                return;
+            }
+
+            try {
+                await contract.methods.placeBid().send({
+                    from: account,
+                    value: web3.utils.toWei(amount, "ether")
+                });
+                alert("Bid placed successfully!");
+                loadAuctionData();
+            } catch (error) {
+                alert("Error placing bid: " + error.message);
+            }
+        }
+
+        window.addEventListener("load", loadWeb3);
+    </script>
+</body>
+
+</html>
