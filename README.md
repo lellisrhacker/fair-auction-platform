@@ -18,7 +18,10 @@ A decentralized auction system using smart contracts to ensure fair participatio
 - Simple auction frontend UI
 
 ## 📸 Screenshots
-adding soon
+![REMIX](https://github.com/user-attachments/assets/2e891bfd-d3b7-47c9-808b-3188a5e70afd)
+![LANDING PAGE](https://github.com/user-attachments/assets/7ad1c639-d0d9-439a-ba58-50cf6272b2b1)
+
+
 
 ## 📌 Live Demo
 adding soon
